@@ -38,13 +38,15 @@ const App = () => {
           <div className="relative z-10 flex flex-col min-h-screen">
             <Header onAddPrompt={handleAddPrompt} />
             
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center relative">
               <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-              <SystemPromptDropdown
-                selectedPrompt={selectedSystemPrompt}
-                customPrompts={customPrompts}
-                onPromptChange={setSelectedSystemPrompt}
-              />
+              <div className="absolute right-6">
+                <SystemPromptDropdown
+                  selectedPrompt={selectedSystemPrompt}
+                  customPrompts={customPrompts}
+                  onPromptChange={setSelectedSystemPrompt}
+                />
+              </div>
             </div>
             
             <main className="flex-1 flex flex-col">

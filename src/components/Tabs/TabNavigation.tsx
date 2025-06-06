@@ -8,7 +8,7 @@ interface TabNavigationProps {
 
 export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
   return (
-    <div className="px-6 py-4">
+    <div className="flex justify-center py-4">
       <Tabs value={activeTab} onValueChange={onTabChange}>
         <TabsList className="grid w-fit grid-cols-2 bg-muted/50 rounded-full">
           <TabsTrigger 

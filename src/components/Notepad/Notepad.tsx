@@ -68,23 +68,22 @@ export const Notepad = ({ selectedSystemPrompt }: NotepadProps) => {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Start typing your prompt here..."
-          className="w-full h-full min-h-[400px] bg-muted/20 backdrop-blur-sm border-blue-500/20 focus:border-blue-400 resize-none text-foreground placeholder:text-muted-foreground/60 pr-24"
+          className="w-full h-full min-h-[400px] bg-muted/20 backdrop-blur-sm border-blue-500/20 focus:border-blue-400 resize-none text-foreground placeholder:text-muted-foreground/60"
         />
         
         <Button
           onClick={handleEnhance}
           disabled={isEnhancing || !content.trim()}
-          className="absolute bottom-3 right-3 bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/25 disabled:opacity-50 z-10"
-          size="sm"
+          className="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/25 disabled:opacity-50"
         >
           {isEnhancing ? (
             <>
-              <Sparkles className="mr-1 h-3 w-3 animate-spin" />
+              <Sparkles className="mr-2 h-4 w-4 animate-spin" />
               Enhancing...
             </>
           ) : (
             <>
-              <Sparkles className="mr-1 h-3 w-3" />
+              <Sparkles className="mr-2 h-4 w-4" />
               ENHANCE
             </>
           )}

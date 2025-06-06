@@ -52,7 +52,7 @@ export const History = () => {
   if (isLoading) {
     return (
       <div className="px-6 pb-6 flex items-center justify-center min-h-[400px]">
-        <div className="text-muted-foreground">Loading history...</div>
+        <div className="text-slate-300 text-lg">Loading history...</div>
       </div>
     );
   }
@@ -60,9 +60,9 @@ export const History = () => {
   if (historyItems.length === 0) {
     return (
       <div className="px-6 pb-6 flex items-center justify-center min-h-[400px]">
-        <div className="text-center text-muted-foreground">
-          <p>No history items yet.</p>
-          <p className="text-sm mt-2">Enhanced prompts will appear here.</p>
+        <div className="text-center text-slate-300">
+          <p className="text-lg">No history items yet.</p>
+          <p className="text-sm mt-2 text-slate-400">Enhanced prompts will appear here.</p>
         </div>
       </div>
     );
@@ -71,21 +71,21 @@ export const History = () => {
   return (
     <div className="px-6 pb-6 space-y-4 max-h-[600px] overflow-y-auto">
       {historyItems.map((item) => (
-        <Card key={item.id} className="bg-muted/20 backdrop-blur-sm border-blue-500/20">
+        <Card key={item.id} className="bg-slate-800/40 backdrop-blur-sm border-slate-600/30">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-blue-400">
+              <CardTitle className="text-sm font-medium text-blue-300">
                 System Prompt: {item.systemPrompt}
               </CardTitle>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-slate-400">
                   {new Date(item.date).toLocaleString()}
                 </span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => item.id && deleteItem(item.id)}
-                  className="h-8 w-8 p-0 hover:bg-destructive/20 hover:text-destructive"
+                  className="h-8 w-8 p-0 hover:bg-red-500/20 hover:text-red-300 text-slate-400"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -94,15 +94,15 @@ export const History = () => {
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <h4 className="text-sm font-medium mb-1 text-foreground">Original Input:</h4>
-              <p className="text-sm text-muted-foreground bg-muted/30 p-2 rounded border-l-2 border-yellow-500">
+              <h4 className="text-sm font-medium mb-1 text-slate-200">Original Input:</h4>
+              <p className="text-sm text-slate-300 bg-slate-700/30 p-3 rounded border-l-2 border-yellow-400">
                 {item.userInput}
               </p>
             </div>
             
             <div>
-              <h4 className="text-sm font-medium mb-1 text-foreground">AI Response:</h4>
-              <div className="text-sm text-foreground bg-muted/30 p-2 rounded border-l-2 border-green-500 whitespace-pre-wrap">
+              <h4 className="text-sm font-medium mb-1 text-slate-200">AI Response:</h4>
+              <div className="text-sm text-slate-200 bg-slate-700/30 p-3 rounded border-l-2 border-green-400 whitespace-pre-wrap">
                 {item.aiResponse}
               </div>
             </div>

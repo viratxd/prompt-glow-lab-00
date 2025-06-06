@@ -2,7 +2,10 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Plus, Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Sparkles, Plus, Trash2, ChevronDown } from "lucide-react";
 import { enhancePrompt } from "@/services/api";
 import { db } from "@/db/historyDb";
 import { SystemPrompt } from "../SystemPromptDropdown/SystemPromptDropdown";
@@ -18,6 +21,18 @@ interface PromptPadProps {
   onPromptChange: (prompt: SystemPrompt) => void;
 }
 
+const LANGUAGES = [
+  'Python',
+  'Node.js',
+  'React',
+  'Vite.js',
+  'Bash',
+  'SQL',
+  'TypeScript',
+  'JavaScript',
+  'General'
+];
+
 export const PromptPad = ({ 
   selectedSystemPrompt, 
   activeTab, 
@@ -29,6 +44,9 @@ export const PromptPad = ({
   const [content, setContent] = useState('');
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [charCount, setCharCount] = useState(0);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('General');
   const { toast } = useToast();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -53,7 +71,6 @@ export const PromptPad = ({
         systemPrompt: selectedSystemPrompt.prompt
       });
 
-      // Save to history
       await db.history.add({
         userInput: content,
         systemPrompt: selectedSystemPrompt.name,
@@ -61,7 +78,6 @@ export const PromptPad = ({
         date: new Date()
       });
 
-      // Update content with enhanced version
       setContent(response.enhancedText);
       
       toast({
@@ -85,6 +101,15 @@ export const PromptPad = ({
     setCharCount(0);
   };
 
+  const handleSavePrompt = () => {
+    if (customPrompt.trim()) {
+      onAddPrompt(customPrompt, selectedLanguage);
+      setCustomPrompt('');
+      setSelectedLanguage('General');
+      setIsDialogOpen(false);
+    }
+  };
+
   const getCharCountColor = () => {
     if (charCount >= 2000) return "text-red-400";
     if (charCount >= 1800) return "text-yellow-400";
@@ -93,57 +118,77 @@ export const PromptPad = ({
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Animated Background Effects */}
+      {/* Static Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
       <div className="fixed inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10" />
-      <motion.div 
-        className="fixed inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.15),transparent_50%)]"
-        animate={{
-          background: [
-            "radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.15),transparent_50%)",
-            "radial-gradient(circle_at_70%_70%,rgba(147,51,234,0.15),transparent_50%)",
-            "radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.15),transparent_50%)"
-          ]
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-      />
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Animated Header */}
+        {/* Header */}
         <motion.header 
           className="flex items-center justify-between p-6 border-b border-slate-700/50 backdrop-blur-sm"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <motion.h1 
-            className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
-            animate={{ 
-              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-            }}
-            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-            style={{ backgroundSize: "200% 200%" }}
-          >
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
             PROMPT PAD
-          </motion.h1>
+          </h1>
           
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Button 
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/25 border-0"
-              onClick={() => onAddPrompt("", "General")}
-            >
-              <motion.div
-                animate={{ rotate: [0, 180, 360] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              >
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/25 border-0">
                 <Plus className="mr-2 h-4 w-4" />
-              </motion.div>
-              Add Prompt
-            </Button>
-          </motion.div>
+                Add Prompt
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Add Custom System Prompt</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Language/Context</label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="w-full justify-between">
+                        {selectedLanguage}
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-full">
+                      {LANGUAGES.map((lang) => (
+                        <DropdownMenuItem
+                          key={lang}
+                          onClick={() => setSelectedLanguage(lang)}
+                        >
+                          {lang}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium mb-2 block">System Prompt</label>
+                  <Textarea
+                    placeholder="Enter your custom system prompt..."
+                    value={customPrompt}
+                    onChange={(e) => setCustomPrompt(e.target.value)}
+                    className="min-h-[100px]"
+                  />
+                </div>
+                
+                <div className="flex gap-2 justify-end">
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSavePrompt} className="bg-blue-600 hover:bg-blue-700">
+                    Save & Apply
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </motion.header>
 
         {/* Tab Navigation and System Prompt Dropdown */}
@@ -156,7 +201,7 @@ export const PromptPad = ({
           {/* Tab Switcher */}
           <div className="flex bg-slate-800/50 backdrop-blur-sm rounded-full p-1 border border-slate-700/30">
             {["notepad", "history"].map((tab) => (
-              <motion.button
+              <button
                 key={tab}
                 onClick={() => onTabChange(tab)}
                 className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
@@ -164,20 +209,14 @@ export const PromptPad = ({
                     ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
                     : "text-slate-300 hover:text-white hover:bg-slate-700/50"
                 }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
                 {tab === "notepad" ? "NOTE PAD" : "HISTORY"}
-              </motion.button>
+              </button>
             ))}
           </div>
 
           {/* System Prompt Dropdown */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
+          <div>
             <select
               value={selectedSystemPrompt.id}
               onChange={(e) => {
@@ -196,7 +235,7 @@ export const PromptPad = ({
                 </option>
               ))}
             </select>
-          </motion.div>
+          </div>
         </motion.div>
 
         {/* Main Content Area */}
@@ -211,11 +250,7 @@ export const PromptPad = ({
             >
               <div className="relative">
                 {/* Textarea Container */}
-                <motion.div 
-                  className="relative group"
-                  whileHover={{ scale: 1.001 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                >
+                <div className="relative group">
                   <Textarea
                     ref={textareaRef}
                     value={content}
@@ -226,80 +261,48 @@ export const PromptPad = ({
                   
                   {/* Action Buttons */}
                   <div className="absolute bottom-4 right-4 flex gap-2">
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <Button
+                      onClick={handleClear}
+                      variant="outline"
+                      size="sm"
+                      className="bg-slate-800/80 backdrop-blur-sm border-slate-600/50 text-slate-300 hover:bg-slate-700/80 hover:text-white"
+                      disabled={!content.trim()}
                     >
-                      <Button
-                        onClick={handleClear}
-                        variant="outline"
-                        size="sm"
-                        className="bg-slate-800/80 backdrop-blur-sm border-slate-600/50 text-slate-300 hover:bg-slate-700/80 hover:text-white"
-                        disabled={!content.trim()}
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Clear
-                      </Button>
-                    </motion.div>
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Clear
+                    </Button>
 
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <Button
+                      onClick={handleEnhance}
+                      disabled={isEnhancing || !content.trim()}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/25 border-0"
                     >
-                      <Button
-                        onClick={handleEnhance}
-                        disabled={isEnhancing || !content.trim()}
-                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/25 border-0"
-                      >
-                        {isEnhancing ? (
-                          <>
-                            <motion.div
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                            >
-                              <Sparkles className="mr-2 h-4 w-4" />
-                            </motion.div>
-                            Enhancing...
-                          </>
-                        ) : (
-                          <>
-                            <motion.div
-                              animate={{ 
-                                scale: [1, 1.2, 1],
-                                rotate: [0, 5, -5, 0]
-                              }}
-                              transition={{ duration: 2, repeat: Infinity }}
-                            >
-                              <Sparkles className="mr-2 h-4 w-4" />
-                            </motion.div>
-                            ENHANCE
-                          </>
-                        )}
-                      </Button>
-                    </motion.div>
+                      {isEnhancing ? (
+                        <>
+                          <Sparkles className="mr-2 h-4 w-4 animate-spin" />
+                          Enhancing...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="mr-2 h-4 w-4" />
+                          ENHANCE
+                        </>
+                      )}
+                    </Button>
                   </div>
-                </motion.div>
+                </div>
 
                 {/* Character Counter */}
-                <motion.div 
-                  className="flex justify-end mt-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                >
+                <div className="flex justify-end mt-4">
                   <div className={`text-sm ${getCharCountColor()} bg-slate-800/30 backdrop-blur-sm px-3 py-1 rounded-full border border-slate-700/30`}>
                     {charCount}/2000 characters
                     {charCount >= 1800 && (
-                      <motion.span
-                        className="ml-2"
-                        animate={{ opacity: [1, 0.5, 1] }}
-                        transition={{ duration: 1, repeat: Infinity }}
-                      >
+                      <span className="ml-2">
                         {charCount >= 2000 ? "⚠️ Limit reached!" : "⚠️ Approaching limit"}
-                      </motion.span>
+                      </span>
                     )}
                   </div>
-                </motion.div>
+                </div>
               </div>
             </motion.main>
           )}

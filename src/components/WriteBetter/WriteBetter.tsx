@@ -1,67 +1,31 @@
 
-import { useState, useRef, useCallback, ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sparkles, Check, X } from 'lucide-react';
-import { sendMessage } from '@/services/api';
-import { useToast } from '@/hooks/use-toast';
+import { useWriteBetter } from '@/hooks/useWriteBetter';
 
 interface WriteBetterProps {
   children: ReactNode;
+  content: string;
   onTextChange?: (newText: string) => void;
   className?: string;
 }
 
-interface SelectionState {
-  start: number;
-  end: number;
-  text: string;
-  x: number;
-  y: number;
-}
-
-export const WriteBetter = ({ children, onTextChange, className }: WriteBetterProps) => {
-  const [selection, setSelection] = useState<SelectionState | null>(null);
-  const [showPromptInput, setShowPromptInput] = useState(false);
-  const [customPrompt, setCustomPrompt] = useState('');
-  const [isEnhancing, setIsEnhancing] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { toast } = useToast();
-
-  const handleMouseUp = useCallback(() => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.substring(start, end).trim();
-
-    if (selectedText && start !== end) {
-      // Calculate button position
-      const rect = textarea.getBoundingClientRect();
-      const textBeforeSelection = textarea.value.substring(0, start);
-      const lines = textBeforeSelection.split('\n');
-      const lineHeight = 24; // Approximate line height
-      const charWidth = 8; // Approximate character width
-      
-      const currentLine = lines.length - 1;
-      const currentCol = lines[lines.length - 1].length;
-      
-      const x = rect.left + (currentCol * charWidth);
-      const y = rect.top + (currentLine * lineHeight) - 40; // Position above selection
-
-      setSelection({
-        start,
-        end,
-        text: selectedText,
-        x: Math.min(x, window.innerWidth - 200), // Prevent overflow
-        y: Math.max(y, 10) // Prevent going above viewport
-      });
-    } else {
-      setSelection(null);
-    }
-  }, []);
+export const WriteBetter = ({ children, content, onTextChange, className }: WriteBetterProps) => {
+  const {
+    selection,
+    showPromptInput,
+    setShowPromptInput,
+    customPrompt,
+    setCustomPrompt,
+    isEnhancing,
+    textareaRef,
+    handleMouseUp,
+    enhanceText,
+    clearSelection
+  } = useWriteBetter(content, onTextChange);
 
   const handleWriteBetter = () => {
     setShowPromptInput(true);
@@ -69,47 +33,12 @@ export const WriteBetter = ({ children, onTextChange, className }: WriteBetterPr
   };
 
   const handleEnhance = async () => {
-    if (!selection || !textareaRef.current) return;
-
-    setIsEnhancing(true);
-    try {
-      const response = await sendMessage(customPrompt);
-      const data = await response.json();
-      const enhancedText = data.choices?.[0]?.message?.content || selection.text;
-
-      // Replace selected text with enhanced version
-      const textarea = textareaRef.current;
-      const fullText = textarea.value;
-      const newText = fullText.substring(0, selection.start) + enhancedText + fullText.substring(selection.end);
-      
-      textarea.value = newText;
-      onTextChange?.(newText);
-
-      // Clear selection and close UI
-      setSelection(null);
-      setShowPromptInput(false);
-      setCustomPrompt('');
-
-      toast({
-        title: "Enhanced!",
-        description: "Your text has been improved successfully.",
-      });
-    } catch (error) {
-      console.error('Enhancement failed:', error);
-      toast({
-        title: "Error",
-        description: "Failed to enhance text. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsEnhancing(false);
-    }
+    if (!customPrompt.trim()) return;
+    await enhanceText(customPrompt);
   };
 
   const handleCancel = () => {
-    setSelection(null);
-    setShowPromptInput(false);
-    setCustomPrompt('');
+    clearSelection();
   };
 
   const cloneChildWithRef = (child: ReactNode) => {

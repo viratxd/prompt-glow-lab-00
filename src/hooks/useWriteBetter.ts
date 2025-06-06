@@ -11,7 +11,7 @@ interface SelectionState {
   y: number;
 }
 
-export const useWriteBetter = (onTextChange?: (newText: string) => void) => {
+export const useWriteBetter = (content: string, onTextChange?: (newText: string) => void) => {
   const [selection, setSelection] = useState<SelectionState | null>(null);
   const [showPromptInput, setShowPromptInput] = useState(false);
   const [customPrompt, setCustomPrompt] = useState('');
@@ -65,7 +65,11 @@ export const useWriteBetter = (onTextChange?: (newText: string) => void) => {
       const fullText = textarea.value;
       const newText = fullText.substring(0, selection.start) + enhancedText + fullText.substring(selection.end);
       
+      // Update the textarea value and trigger change event
       textarea.value = newText;
+      const event = new Event('input', { bubbles: true });
+      textarea.dispatchEvent(event);
+      
       onTextChange?.(newText);
 
       setSelection(null);

@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -120,6 +121,10 @@ export const PromptPad = ({
     setContent(newContent);
   };
 
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(e.target.value);
+  };
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Static Background Effects */}
@@ -128,12 +133,7 @@ export const PromptPad = ({
 
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <motion.header 
-          className="flex items-center justify-between p-6 border-b border-slate-700/50 backdrop-blur-sm"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
+        <header className="flex items-center justify-between p-6 border-b border-slate-700/50 backdrop-blur-sm">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
             PROMPT PAD
           </h1>
@@ -193,15 +193,10 @@ export const PromptPad = ({
               </div>
             </DialogContent>
           </Dialog>
-        </motion.header>
+        </header>
 
         {/* Tab Navigation and System Prompt Dropdown */}
-        <motion.div 
-          className="flex items-center justify-between px-6 py-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
+        <div className="flex items-center justify-between px-6 py-4">
           {/* Tab Switcher */}
           <div className="flex bg-slate-800/50 backdrop-blur-sm rounded-full p-1 border border-slate-700/30">
             {["notepad", "history"].map((tab) => (
@@ -240,26 +235,20 @@ export const PromptPad = ({
               ))}
             </select>
           </div>
-        </motion.div>
+        </div>
 
         {/* Main Content Area */}
         <AnimatePresence mode="wait">
           {activeTab === "notepad" && (
-            <motion.main 
-              className="flex-1 px-6 pb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4 }}
-            >
+            <main className="flex-1 px-6 pb-6">
               <div className="relative">
                 {/* Textarea Container with WriteBetter */}
                 <div className="relative group">
-                  <WriteBetter onTextChange={handleContentChange}>
+                  <WriteBetter content={content} onTextChange={handleContentChange}>
                     <Textarea
                       ref={textareaRef}
                       value={content}
-                      onChange={(e) => setContent(e.target.value)}
+                      onChange={handleTextareaChange}
                       placeholder="Start typing your prompt here... Select any text and click 'Write Better' to enhance it with AI!"
                       className="w-full h-[600px] bg-slate-800/30 backdrop-blur-sm border-slate-700/50 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 resize-none text-slate-100 placeholder:text-slate-400 rounded-xl p-6 text-base leading-relaxed transition-all duration-300 focus:shadow-lg focus:shadow-blue-500/10 scrollbar-hide"
                     />
@@ -310,7 +299,7 @@ export const PromptPad = ({
                   </div>
                 </div>
               </div>
-            </motion.main>
+            </main>
           )}
         </AnimatePresence>
       </div>

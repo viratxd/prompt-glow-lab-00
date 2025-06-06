@@ -13,6 +13,7 @@ const App = () => {
   const [activeTab, setActiveTab] = useState("notepad");
   const [selectedSystemPrompt, setSelectedSystemPrompt] = useState<SystemPrompt>(DEFAULT_PROMPTS[0]);
   const [customPrompts, setCustomPrompts] = useState<SystemPrompt[]>(DEFAULT_PROMPTS);
+  const [notepadContent, setNotepadContent] = useState(''); // Add persistent content state
 
   const handleAddPrompt = (prompt: string, language: string) => {
     const newPrompt: SystemPrompt = {
@@ -37,6 +38,8 @@ const App = () => {
               onAddPrompt={handleAddPrompt}
               customPrompts={customPrompts}
               onPromptChange={setSelectedSystemPrompt}
+              content={notepadContent}
+              onContentChange={setNotepadContent}
             />
           ) : (
             <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">

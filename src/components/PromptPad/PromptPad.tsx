@@ -20,6 +20,8 @@ interface PromptPadProps {
   onAddPrompt: (prompt: string, language: string) => void;
   customPrompts: SystemPrompt[];
   onPromptChange: (prompt: SystemPrompt) => void;
+  content: string;
+  onContentChange: (content: string) => void;
 }
 
 const LANGUAGES = [
@@ -40,9 +42,10 @@ export const PromptPad = ({
   onTabChange,
   onAddPrompt,
   customPrompts,
-  onPromptChange 
+  onPromptChange,
+  content,
+  onContentChange
 }: PromptPadProps) => {
-  const [content, setContent] = useState('');
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [charCount, setCharCount] = useState(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -79,7 +82,7 @@ export const PromptPad = ({
         date: new Date()
       });
 
-      setContent(response.enhancedText);
+      onContentChange(response.enhancedText);
       
       toast({
         title: "Enhanced!",
@@ -98,8 +101,7 @@ export const PromptPad = ({
   };
 
   const handleClear = () => {
-    setContent('');
-    setCharCount(0);
+    onContentChange('');
   };
 
   const handleSavePrompt = () => {
@@ -117,12 +119,8 @@ export const PromptPad = ({
     return "text-muted-foreground";
   };
 
-  const handleContentChange = (newContent: string) => {
-    setContent(newContent);
-  };
-
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(e.target.value);
+    onContentChange(e.target.value);
   };
 
   return (
@@ -244,7 +242,7 @@ export const PromptPad = ({
               <div className="relative">
                 {/* Textarea Container with WriteBetter */}
                 <div className="relative group">
-                  <WriteBetter content={content} onTextChange={handleContentChange}>
+                  <WriteBetter content={content} onTextChange={onContentChange}>
                     <Textarea
                       ref={textareaRef}
                       value={content}

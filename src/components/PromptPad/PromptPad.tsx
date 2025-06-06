@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +10,7 @@ import { db } from "@/db/historyDb";
 import { SystemPrompt } from "../SystemPromptDropdown/SystemPromptDropdown";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { WriteBetter } from "../WriteBetter/WriteBetter";
 
 interface PromptPadProps {
   selectedSystemPrompt: SystemPrompt;
@@ -114,6 +114,10 @@ export const PromptPad = ({
     if (charCount >= 2000) return "text-red-400";
     if (charCount >= 1800) return "text-yellow-400";
     return "text-muted-foreground";
+  };
+
+  const handleContentChange = (newContent: string) => {
+    setContent(newContent);
   };
 
   return (
@@ -249,15 +253,17 @@ export const PromptPad = ({
               transition={{ duration: 0.4 }}
             >
               <div className="relative">
-                {/* Textarea Container */}
+                {/* Textarea Container with WriteBetter */}
                 <div className="relative group">
-                  <Textarea
-                    ref={textareaRef}
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="Start typing your prompt here... Let your creativity flow!"
-                    className="w-full h-[600px] bg-slate-800/30 backdrop-blur-sm border-slate-700/50 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 resize-none text-slate-100 placeholder:text-slate-400 rounded-xl p-6 text-base leading-relaxed transition-all duration-300 focus:shadow-lg focus:shadow-blue-500/10 scrollbar-hide"
-                  />
+                  <WriteBetter onTextChange={handleContentChange}>
+                    <Textarea
+                      ref={textareaRef}
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      placeholder="Start typing your prompt here... Select any text and click 'Write Better' to enhance it with AI!"
+                      className="w-full h-[600px] bg-slate-800/30 backdrop-blur-sm border-slate-700/50 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 resize-none text-slate-100 placeholder:text-slate-400 rounded-xl p-6 text-base leading-relaxed transition-all duration-300 focus:shadow-lg focus:shadow-blue-500/10 scrollbar-hide"
+                    />
+                  </WriteBetter>
                   
                   {/* Action Buttons */}
                   <div className="absolute bottom-4 right-4 flex gap-2">

@@ -221,11 +221,7 @@ export const PromptPad = ({
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Start typing your prompt here... Let your creativity flow!"
-                    className="w-full h-[600px] bg-slate-800/30 backdrop-blur-sm border-slate-700/50 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 resize-none text-slate-100 placeholder:text-slate-400 rounded-xl p-6 text-base leading-relaxed transition-all duration-300 focus:shadow-lg focus:shadow-blue-500/10"
-                    style={{ 
-                      scrollbarWidth: 'none',
-                      msOverflowStyle: 'none'
-                    }}
+                    className="w-full h-[600px] bg-slate-800/30 backdrop-blur-sm border-slate-700/50 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 resize-none text-slate-100 placeholder:text-slate-400 rounded-xl p-6 text-base leading-relaxed transition-all duration-300 focus:shadow-lg focus:shadow-blue-500/10 scrollbar-hide"
                   />
                   
                   {/* Action Buttons */}
@@ -309,13 +305,6 @@ export const PromptPad = ({
           )}
         </AnimatePresence>
       </div>
-
-      {/* Custom Scrollbar Styles */}
-      <style jsx>{`
-        .w-full::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
     </div>
   );
 };

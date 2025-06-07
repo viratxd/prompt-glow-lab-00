@@ -1,39 +1,54 @@
 
-const API_BASE_URL = 'https://deepak191z-g4f-new.hf.space/api/v1';
+const API_BASE_URL = 'https://deepak191z-fastapi-chat3.hf.space/v1';
 
 export interface EnhanceRequest {
+
   userInput: string;
+
   systemPrompt: string;
+
 }
 
 export interface EnhanceResponse {
+
   enhancedText: string;
+
 }
 
 export class ChatError extends Error {
+
   constructor(message: string) {
     super(message);
     this.name = 'ChatError';
+
   }
 }
 
 export async function sendMessage(content: string, replyToContent?: string): Promise<Response> {
+
+
   try {
     // Combine replyToContent and user input if reply exists
+
     const finalContent = replyToContent 
+
+
       ? `${replyToContent}\n\n${content}`
+
       : content;
 
     const response = await fetch(`${API_BASE_URL}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+
       },
       body: JSON.stringify({
         messages: [
           {
             role: 'user',
             content: finalContent,
+
           },
         ],
         model: 'gpt-4o-mini',

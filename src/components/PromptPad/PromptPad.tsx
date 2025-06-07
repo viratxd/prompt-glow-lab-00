@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Sparkles, Plus, Trash2, ChevronDown } from "lucide-react";
+import { Sparkles, Plus, Trash2, ChevronDown, Copy } from "lucide-react";
 import { enhancePrompt } from "@/services/api";
 import { db } from "@/db/historyDb";
 import { SystemPrompt } from "../SystemPromptDropdown/SystemPromptDropdown";
@@ -97,6 +97,32 @@ export const PromptPad = ({
       });
     } finally {
       setIsEnhancing(false);
+    }
+  };
+
+  const handleCopy = async () => {
+    if (!content.trim()) {
+      toast({
+        title: "Error",
+        description: "No content to copy.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(content);
+      toast({
+        title: "Copied!",
+        description: "Content has been copied to clipboard.",
+      });
+    } catch (error) {
+      console.error('Copy failed:', error);
+      toast({
+        title: "Error",
+        description: "Failed to copy content to clipboard.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -254,6 +280,17 @@ export const PromptPad = ({
                   
                   {/* Action Buttons */}
                   <div className="absolute bottom-4 right-4 flex gap-2">
+                    <Button
+                      onClick={handleCopy}
+                      variant="outline"
+                      size="sm"
+                      className="bg-slate-800/80 backdrop-blur-sm border-slate-600/50 text-slate-300 hover:bg-slate-700/80 hover:text-white"
+                      disabled={!content.trim()}
+                    >
+                      <Copy className="h-4 w-4 mr-1" />
+                      Copy
+                    </Button>
+
                     <Button
                       onClick={handleClear}
                       variant="outline"
